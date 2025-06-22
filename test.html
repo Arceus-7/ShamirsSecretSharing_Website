@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shamir's Secret Sharing - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Shamir's Secret Sharing - Test Page</h1>
+    <p>This page tests the core functionality of the Shamir's Secret Sharing implementation.</p>
+
+    <div class="test-section">
+        <h2>Test 1: Basic Text Sharing and Reconstruction</h2>
+        <p>Test the core algorithm with a simple text message.</p>
+        <input type="text" id="testText" value="Hello, Shamir's Secret Sharing!" placeholder="Enter test text">
+        <input type="number" id="testThreshold" value="3" placeholder="Threshold" min="2" max="10">
+        <input type="number" id="testNumShares" value="5" placeholder="Number of shares" min="2" max="10">
+        <button onclick="testTextSharing()">Test Text Sharing</button>
+        <div id="textTestResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Mathematical Verification</h2>
+        <p>Test the mathematical correctness with known values.</p>
+        <button onclick="testMathematicalCorrectness()">Test Mathematical Correctness</button>
+        <div id="mathTestResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Edge Cases</h2>
+        <p>Test edge cases and error handling.</p>
+        <button onclick="testEdgeCases()">Test Edge Cases</button>
+        <div id="edgeTestResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Performance Test</h2>
+        <p>Test performance with larger inputs.</p>
+        <button onclick="testPerformance()">Test Performance</button>
+        <div id="perfTestResult"></div>
+    </div>
+
+    <script src="shamir.js"></script>
+    <script>
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="result ${isError ? 'error' : ''}">${message}</div>`;
+        }
+
+        function testTextSharing() {
+            try {
+                const text = document.getElementById('testText').value;
+                const threshold = parseInt(document.getElementById('testThreshold').value);
+                const numShares = parseInt(document.getElementById('testNumShares').value);
+
+                if (!text) {
+                    showResult('textTestResult', 'Please enter some text to test.', true);
+                    return;
+                }
+
+                // Create Shamir instance
+                const sss = new ShamirSecretSharing(threshold, numShares);
+                
+                // Share the text
+                const allShares = sss.shareText(text);
+                
+                // Reconstruct the text
+                const reconstructedText = sss.reconstructText(allShares);
+                
+                // Verify
+                const success = text === reconstructedText;
+                
+                const result = `
+                    <h4>${success ? '✅ SUCCESS' : '❌ FAILED'}</h4>
+                    <p><strong>Original:</strong> "${text}"</p>
+                    <p><strong>Reconstructed:</strong> "${reconstructedText}"</p>
+                    <p><strong>Match:</strong> ${success ? 'Yes' : 'No'}</p>
+                    <p><strong>Characters:</strong> ${text.length}</p>
+                    <p><strong>Shares generated:</strong> ${allShares.length * numShares}</p>
+                `;
+                
+                showResult('textTestResult', result, !success);
+                
+            } catch (error) {
+                showResult('textTestResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        function testMathematicalCorrectness() {
+            try {
+                const sss = new ShamirSecretSharing(3, 5);
+                
+                // Test with known secret
+                const secret = BigInt(42);
+                const shares = sss.generateShares(secret);
+                
+                // Reconstruct
+                const reconstructed = sss.reconstructSecret(shares);
+                
+                const success = secret === reconstructed;
+                
+                const result = `
+                    <h4>${success ? '✅ SUCCESS' : '❌ FAILED'}</h4>
+                    <p><strong>Original secret:</strong> ${secret}</p>
+                    <p><strong>Reconstructed secret:</strong> ${reconstructed}</p>
+                    <p><strong>Match:</strong> ${success ? 'Yes' : 'No'}</p>
+                    <p><strong>Shares:</strong> ${shares.map(s => `(${s.x}, ${s.y})`).join(', ')}</p>
+                `;
+                
+                showResult('mathTestResult', result, !success);
+                
+            } catch (error) {
+                showResult('mathTestResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        function testEdgeCases() {
+            let results = [];
+            
+            try {
+                // Test 1: Threshold > numShares
+                try {
+                    new ShamirSecretSharing(5, 3);
+                    results.push('❌ FAILED: Should have thrown error for threshold > numShares');
+                } catch (error) {
+                    results.push('✅ PASSED: Correctly rejected threshold > numShares');
+                }
+                
+                // Test 2: Insufficient shares
+                const sss = new ShamirSecretSharing(3, 5);
+                const shares = sss.generateShares(BigInt(42));
+                try {
+                    sss.reconstructSecret(shares.slice(0, 2)); // Only 2 shares, need 3
+                    results.push('❌ FAILED: Should have thrown error for insufficient shares');
+                } catch (error) {
+                    results.push('✅ PASSED: Correctly rejected insufficient shares');
+                }
+                
+                // Test 3: Empty text
+                const emptyShares = sss.shareText('');
+                const emptyReconstructed = sss.reconstructText(emptyShares);
+                if (emptyReconstructed === '') {
+                    results.push('✅ PASSED: Empty text handled correctly');
+                } else {
+                    results.push('❌ FAILED: Empty text not handled correctly');
+                }
+                
+                // Test 4: Single character
+                const singleShares = sss.shareText('A');
+                const singleReconstructed = sss.reconstructText(singleShares);
+                if (singleReconstructed === 'A') {
+                    results.push('✅ PASSED: Single character handled correctly');
+                } else {
+                    results.push('❌ FAILED: Single character not handled correctly');
+                }
+                
+            } catch (error) {
+                results.push(`❌ ERROR: ${error.message}`);
+            }
+            
+            showResult('edgeTestResult', `<h4>Edge Case Test Results:</h4>${results.map(r => `<p>${r}</p>`).join('')}`);
+        }
+
+        function testPerformance() {
+            try {
+                const startTime = performance.now();
+                
+                // Test with longer text
+                const longText = 'This is a longer text to test performance. '.repeat(100);
+                const sss = new ShamirSecretSharing(3, 5);
+                
+                const shareStart = performance.now();
+                const allShares = sss.shareText(longText);
+                const shareTime = performance.now() - shareStart;
+                
+                const reconstructStart = performance.now();
+                const reconstructedText = sss.reconstructText(allShares);
+                const reconstructTime = performance.now() - reconstructStart;
+                
+                const totalTime = performance.now() - startTime;
+                
+                const success = longText === reconstructedText;
+                
+                const result = `
+                    <h4>${success ? '✅ SUCCESS' : '❌ FAILED'}</h4>
+                    <p><strong>Text length:</strong> ${longText.length} characters</p>
+                    <p><strong>Share generation time:</strong> ${shareTime.toFixed(2)}ms</p>
+                    <p><strong>Reconstruction time:</strong> ${reconstructTime.toFixed(2)}ms</p>
+                    <p><strong>Total time:</strong> ${totalTime.toFixed(2)}ms</p>
+                    <p><strong>Performance:</strong> ${(longText.length / totalTime * 1000).toFixed(0)} chars/second</p>
+                    <p><strong>Match:</strong> ${success ? 'Yes' : 'No'}</p>
+                `;
+                
+                showResult('perfTestResult', result, !success);
+                
+            } catch (error) {
+                showResult('perfTestResult', `Error: ${error.message}`, true);
+            }
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', function() {
+            console.log('🧪 Shamir\'s Secret Sharing Test Page loaded');
+            console.log('Running basic functionality test...');
+            
+            try {
+                const sss = new ShamirSecretSharing(3, 5);
+                const testSecret = BigInt(123);
+                const shares = sss.generateShares(testSecret);
+                const reconstructed = sss.reconstructSecret(shares);
+                
+                if (testSecret === reconstructed) {
+                    console.log('✅ Basic functionality test PASSED');
+                } else {
+                    console.log('❌ Basic functionality test FAILED');
+                }
+            } catch (error) {
+                console.log('❌ Basic functionality test ERROR:', error.message);
+            }
+        });
+    </script>
+</body>
+</html> 
