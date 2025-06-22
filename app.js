@@ -73,7 +73,6 @@ function shareText() {
     
     showLoading(true);
     
-    // Use setTimeout to allow UI to update
     setTimeout(() => {
         try {
             const sss = new ShamirSecretSharing(threshold, numShares);
@@ -81,11 +80,6 @@ function shareText() {
             
             const resultHtml = `
                 <h4>✅ Text Shares Generated Successfully!</h4>
-                <p><strong>Original text:</strong> "${text}"</p>
-                <p><strong>Characters:</strong> ${text.length}</p>
-                <p><strong>Threshold:</strong> ${threshold}</p>
-                <p><strong>Total shares:</strong> ${numShares}</p>
-                <p><strong>Generated:</strong> ${currentTextShares.length * numShares} total share points</p>
             `;
             
             showResult('shareResult', resultHtml, false);
@@ -193,14 +187,8 @@ function shareImage() {
             const sss = new ShamirSecretSharing(threshold, numShares);
             currentImageShares = sss.shareImage(currentImageData);
             
-            const totalPixels = currentImageWidth * currentImageHeight;
             const resultHtml = `
                 <h4>✅ Image Shares Generated Successfully!</h4>
-                <p><strong>Image dimensions:</strong> ${currentImageWidth} × ${currentImageHeight}</p>
-                <p><strong>Total pixels:</strong> ${totalPixels}</p>
-                <p><strong>Threshold:</strong> ${threshold}</p>
-                <p><strong>Total shares:</strong> ${numShares}</p>
-                <p><strong>Generated:</strong> ${totalPixels * numShares} total share points</p>
             `;
             
             showResult('shareResult', resultHtml, false);
@@ -246,17 +234,18 @@ function processTextSharesFile(file) {
         try {
             const content = e.target.result;
             const allShares = loadTextShares(content);
-            
+            // Metadata
+            const numChars = allShares.length;
+            const sharesPerChar = allShares[0] ? allShares[0].length : 0;
+            const fileSize = (file.size / 1024).toFixed(2);
             const resultHtml = `
                 <h4>✅ Text Shares File Loaded!</h4>
-                <p><strong>Characters:</strong> ${allShares.length}</p>
-                <p><strong>Shares per character:</strong> ${allShares[0] ? allShares[0].length : 0}</p>
-                <p><strong>File size:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+                <p><strong>Characters:</strong> ${numChars}</p>
+                <p><strong>Shares per character:</strong> ${sharesPerChar}</p>
+                <p><strong>File size:</strong> ${fileSize} KB</p>
             `;
-            
             showResult('reconstructResult', resultHtml, false);
             window.loadedTextShares = allShares;
-            
         } catch (error) {
             showResult('reconstructResult', `Error loading text shares: ${error.message}`, true);
         }
@@ -269,27 +258,24 @@ function reconstructText() {
         showResult('reconstructResult', 'Please upload a text shares file first.', true);
         return;
     }
-    
     showLoading(true);
-    
     setTimeout(() => {
         try {
-            // Use the first character's shares to determine parameters
             const firstShares = window.loadedTextShares[0];
-            const threshold = Math.min(firstShares.length, 3); // Default threshold
+            const threshold = Math.min(firstShares.length, 3);
             const sss = new ShamirSecretSharing(threshold, firstShares.length);
-            
             const reconstructedText = sss.reconstructText(window.loadedTextShares);
-            
+            // Metadata
+            const numChars = window.loadedTextShares.length;
+            const sharesPerChar = firstShares.length;
             const resultHtml = `
                 <h4>✅ Text Reconstructed Successfully!</h4>
+                <p><strong>Characters:</strong> ${numChars}</p>
+                <p><strong>Shares per character:</strong> ${sharesPerChar}</p>
                 <p><strong>Reconstructed text:</strong></p>
                 <div style="background: white; color: #09090b; padding: 15px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; white-space: pre-wrap;">${reconstructedText}</div>
-                <p><strong>Characters:</strong> ${reconstructedText.length}</p>
             `;
-            
             showResult('reconstructResult', resultHtml, false);
-            
         } catch (error) {
             showResult('reconstructResult', `Error reconstructing text: ${error.message}`, true);
         } finally {
@@ -320,18 +306,19 @@ function processImageSharesFile(file) {
         try {
             const content = e.target.result;
             const { allShares, width, height } = loadImageShares(content);
-            
+            // Metadata
+            const totalPixels = allShares.length;
+            const sharesPerPixel = allShares[0] ? allShares[0].length : 0;
+            const fileSize = (file.size / 1024).toFixed(2);
             const resultHtml = `
                 <h4>✅ Image Shares File Loaded!</h4>
                 <p><strong>Image dimensions:</strong> ${width} × ${height}</p>
-                <p><strong>Total pixels:</strong> ${allShares.length}</p>
-                <p><strong>Shares per pixel:</strong> ${allShares[0] ? allShares[0].length : 0}</p>
-                <p><strong>File size:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+                <p><strong>Total pixels:</strong> ${totalPixels}</p>
+                <p><strong>Shares per pixel:</strong> ${sharesPerPixel}</p>
+                <p><strong>File size:</strong> ${fileSize} KB</p>
             `;
-            
             showResult('reconstructResult', resultHtml, false);
             window.loadedImageShares = { allShares, width, height };
-            
         } catch (error) {
             showResult('reconstructResult', `Error loading image shares: ${error.message}`, true);
         }
@@ -344,40 +331,29 @@ function reconstructImage() {
         showResult('reconstructResult', 'Please upload an image shares file first.', true);
         return;
     }
-    
     showLoading(true);
-    
     setTimeout(() => {
         try {
             const { allShares, width, height } = window.loadedImageShares;
-            
-            // Use the first pixel's shares to determine parameters
             const firstShares = allShares[0];
-            const threshold = Math.min(firstShares.length, 3); // Default threshold
+            const threshold = Math.min(firstShares.length, 3);
             const sss = new ShamirSecretSharing(threshold, firstShares.length);
-            
             const reconstructedImageData = sss.reconstructImage(allShares, width, height);
             currentReconstructedImageData = reconstructedImageData;
-            
-            // Create canvas to display the reconstructed image
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.putImageData(reconstructedImageData, 0, 0);
-            
+            // Metadata
+            const totalPixels = allShares.length;
+            const sharesPerPixel = firstShares.length;
             const resultHtml = `
                 <h4>✅ Image Reconstructed Successfully!</h4>
-                <p><strong>Dimensions:</strong> ${width} × ${height} pixels</p>
-                <p><strong>Total pixels:</strong> ${allShares.length}</p>
+                <p><strong>Image dimensions:</strong> ${width} × ${height} pixels</p>
+                <p><strong>Total pixels:</strong> ${totalPixels}</p>
+                <p><strong>Shares per pixel:</strong> ${sharesPerPixel}</p>
                 <div style="text-align: center; margin-top: 15px;">
-                    <img src="${canvas.toDataURL()}" alt="Reconstructed Image" class="image-preview">
+                    <img src="${(function(){const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').putImageData(reconstructedImageData,0,0);return canvas.toDataURL();})()}" alt="Reconstructed Image" class="image-preview">
                 </div>
             `;
-            
             showResult('reconstructResult', resultHtml, false);
             document.getElementById('downloadReconstructedBtn').style.display = 'inline-block';
-            
         } catch (error) {
             showResult('reconstructResult', `Error reconstructing image: ${error.message}`, true);
         } finally {

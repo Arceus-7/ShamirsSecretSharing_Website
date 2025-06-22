@@ -215,74 +215,81 @@ class ShamirSecretSharing {
 
 // Utility functions for saving/loading shares
 function saveTextShares(allShares, filename) {
-    let content = `${allShares.length}\n`; // Number of characters
-    
-    // Write shares for each character
-    for (const shares of allShares) {
-        content += `${shares.length}\n`; // Number of shares for this character
-        for (const share of shares) {
-            content += `${share.x} ${share.y}\n`;
+    let content = '';
+    for (let charIdx = 0; charIdx < allShares.length; charIdx++) {
+        const shares = allShares[charIdx];
+        for (let shareIdx = 0; shareIdx < shares.length; shareIdx++) {
+            const share = shares[shareIdx];
+            content += `char:${charIdx} share:${shareIdx + 1}/${shares.length} x:${share.x} y:${share.y}\n`;
         }
     }
-    
     downloadFile(content, filename, 'text/plain');
 }
 
 function loadTextShares(content) {
     const lines = content.trim().split('\n');
-    let lineIndex = 0;
-    
-    // Read number of characters
-    const numChars = parseInt(lines[lineIndex++]);
-    const allShares = new Array(numChars);
-    
-    for (let i = 0; i < numChars; i++) {
-        const numShares = parseInt(lines[lineIndex++]);
-        const shares = new Array(numShares);
-        
-        for (let j = 0; j < numShares; j++) {
-            const [x, y] = lines[lineIndex++].split(' ');
-            shares[j] = new Point(x, y);
-        }
-        allShares[i] = shares;
+    // Parse lines into a map: charIdx -> array of shares
+    const charMap = {};
+    for (const line of lines) {
+        if (!line.trim()) continue;
+        // Example: char:0 share:1/3 x:1 y:123
+        const match = line.match(/char:(\d+) share:(\d+)\/(\d+) x:(\d+) y:(\d+)/);
+        if (!match) continue;
+        const charIdx = parseInt(match[1]);
+        // const shareIdx = parseInt(match[2]); // not used
+        // const totalShares = parseInt(match[3]); // not used
+        const x = match[4];
+        const y = match[5];
+        if (!charMap[charIdx]) charMap[charIdx] = [];
+        charMap[charIdx].push(new Point(x, y));
     }
-    
+    // Convert map to array
+    const allShares = [];
+    const maxIdx = Math.max(...Object.keys(charMap).map(Number));
+    for (let i = 0; i <= maxIdx; i++) {
+        allShares[i] = charMap[i] || [];
+    }
     return allShares;
 }
 
 function saveImageShares(allShares, width, height, filename) {
-    let content = `${width} ${height} ${allShares.length}\n`; // Dimensions and number of pixels
-    
-    // Write shares for each pixel
-    for (const shares of allShares) {
-        content += `${shares.length}\n`; // Number of shares for this pixel
-        for (const share of shares) {
-            content += `${share.x} ${share.y}\n`;
+    let content = '';
+    for (let pixIdx = 0; pixIdx < allShares.length; pixIdx++) {
+        const shares = allShares[pixIdx];
+        for (let shareIdx = 0; shareIdx < shares.length; shareIdx++) {
+            const share = shares[shareIdx];
+            content += `pixel:${pixIdx} size:${width}x${height} share:${shareIdx + 1}/${shares.length} x:${share.x} y:${share.y}\n`;
         }
     }
-    
     downloadFile(content, filename, 'text/plain');
 }
 
 function loadImageShares(content) {
     const lines = content.trim().split('\n');
-    let lineIndex = 0;
-    
-    // Read dimensions and number of pixels
-    const [width, height, numPixels] = lines[lineIndex++].split(' ').map(Number);
-    const allShares = new Array(numPixels);
-    
-    for (let i = 0; i < numPixels; i++) {
-        const numShares = parseInt(lines[lineIndex++]);
-        const shares = new Array(numShares);
-        
-        for (let j = 0; j < numShares; j++) {
-            const [x, y] = lines[lineIndex++].split(' ');
-            shares[j] = new Point(x, y);
-        }
-        allShares[i] = shares;
+    // Parse lines into a map: pixIdx -> array of shares, and get width/height from first line
+    const pixMap = {};
+    let width = 0, height = 0;
+    for (const line of lines) {
+        if (!line.trim()) continue;
+        // Example: pixel:0 size:100x100 share:1/3 x:1 y:123
+        const match = line.match(/pixel:(\d+) size:(\d+)x(\d+) share:(\d+)\/(\d+) x:(\d+) y:(\d+)/);
+        if (!match) continue;
+        const pixIdx = parseInt(match[1]);
+        width = parseInt(match[2]);
+        height = parseInt(match[3]);
+        const x = match[6];
+        const y = match[7];
+        if (!pixMap[pixIdx]) pixMap[pixIdx] = [];
+        pixMap[pixIdx].push(new Point(x, y));
     }
-    
+    // If no valid lines, return empty result
+    const pixKeys = Object.keys(pixMap);
+    if (pixKeys.length === 0) {
+        return { allShares: [], width: 0, height: 0 };
+    }
+    // Create an array of shares in the order of pixel indices
+    const sortedPixIndices = pixKeys.map(Number).sort((a, b) => a - b);
+    const allShares = sortedPixIndices.map(idx => pixMap[idx]);
     return { allShares, width, height };
 }
 
