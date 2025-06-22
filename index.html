@@ -6,285 +6,384 @@
     <title>Shamir's Secret Sharing Demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <style>
         :root {
-            --background: #09090b;
-            --surface: #18181b;
-            --primary: #8b5cf6;
-            --primary-hover: #7c3aed;
-            --secondary: #3f3f46;
-            --secondary-hover: #52525b;
-            --text-primary: #fafafa;
-            --text-secondary: #a1a1aa;
-            --border: #27272a;
+            --retro-bg: #f5e6ce;
+            --retro-black: #181818;
+            --retro-orange: #ff7e2d;
+            --retro-red: #e94f37;
+            --retro-border: #181818;
+            --retro-shadow: #c2b59b;
+            --retro-white: #fff8e7;
             --success: #16a34a;
             --error: #dc2626;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
+        *, *::before, *::after {
             box-sizing: border-box;
         }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background);
-            color: var(--text-primary);
-            padding: 20px;
+            font-family: 'Montserrat', 'Bebas Neue', Arial, sans-serif;
+            background: var(--retro-bg);
+            background-image:
+                linear-gradient(0deg, rgba(24,24,24,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(24,24,24,0.04) 1px, transparent 1px);
+            background-size: 32px 32px;
+            color: var(--retro-black);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin: 0;
+            padding: 0;
         }
-
         .container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: var(--surface);
-            border-radius: 15px;
-            border: 1px solid var(--border);
+            max-width: 900px;
+            margin: 40px auto;
+            background: var(--retro-white);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px var(--retro-shadow), 0 2px 0 var(--retro-orange);
+            border: 4px solid var(--retro-border);
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
         }
-
         .header {
-            background: var(--background);
-            color: var(--text-primary);
-            padding: 40px;
+            background: var(--retro-bg);
+            color: var(--retro-black);
+            padding: 48px 32px 32px 32px;
             text-align: center;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 4px solid var(--retro-border);
+            position: relative;
         }
-
         .header h1 {
-            font-size: 2.25rem;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            font-size: 2.8rem;
             font-weight: 700;
             margin-bottom: 10px;
+            letter-spacing: 2px;
+            color: var(--retro-black);
+            text-shadow: 2px 2px 0 var(--retro-orange), 0 2px 0 var(--retro-shadow);
+            text-transform: uppercase;
         }
-
         .header p {
             font-size: 1.1rem;
-            color: var(--text-secondary);
+            color: var(--retro-orange);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-
         .main-content {
-            padding: 40px;
+            padding: 40px 32px 32px 32px;
+            background: var(--retro-white);
+            border-radius: 0 0 18px 18px;
         }
-
         .tabs {
             display: flex;
-            margin-bottom: 30px;
-            background-color: var(--background);
-            border-radius: 10px;
-            padding: 5px;
-            border: 1px solid var(--border);
+            margin-bottom: 32px;
+            background: var(--retro-bg);
+            border-radius: 12px;
+            padding: 6px;
+            border: 3px solid var(--retro-border);
+            box-shadow: 0 2px 8px var(--retro-shadow);
         }
-
         .tab {
             flex: 1;
-            padding: 10px 15px;
+            padding: 14px 0;
             background: transparent;
             border: none;
-            color: var(--text-secondary);
+            color: var(--retro-black);
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            font-weight: 700;
             border-radius: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-
         .tab.active {
-            background: var(--primary);
-            color: var(--text-primary);
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+            background: var(--retro-orange);
+            color: #fff;
+            box-shadow: 0 2px 10px var(--retro-shadow);
+            border: 2px solid var(--retro-border);
         }
-
         .tab:hover:not(.active) {
-            color: var(--text-primary);
+            color: var(--retro-orange);
         }
-
         .tab-content {
             display: none;
         }
-
         .tab-content.active {
             display: block;
         }
-
         .section {
-            margin-bottom: 30px;
-            padding: 25px;
-            background: var(--background);
-            border-radius: 10px;
-            border: 1px solid var(--border);
+            margin-bottom: 32px;
+            padding: 28px 24px;
+            background: var(--retro-white);
+            border-radius: 12px;
+            border: 3px solid var(--retro-border);
+            box-shadow: 0 2px 8px var(--retro-shadow);
+            position: relative;
         }
-
         .section h3 {
-            margin-bottom: 20px;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            margin-bottom: 18px;
+            color: var(--retro-black);
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
-
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-secondary);
+            margin-bottom: 7px;
+            font-weight: 700;
+            color: var(--retro-orange);
+            font-family: 'Montserrat', Arial, sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-        }
-
         .form-row {
             display: flex;
-            gap: 20px;
+            gap: 18px;
+            width: 100%;
+            align-items: flex-end;
         }
-
         .form-row .form-group {
-            flex: 1;
+            flex: 1 1 0;
+            min-width: 0;
         }
-
-        .btn {
-            background: var(--primary);
-            color: var(--text-primary);
-            padding: 12px 30px;
-            border: none;
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            align-items: center;
+            width: 100%;
+            justify-content: flex-start;
+            margin-left: 0;
+        }
+        .btn, .btn-secondary {
+            margin-right: 0;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            padding: 13px;
+            background: var(--retro-bg);
+            border: 2px solid var(--retro-border);
+            color: var(--retro-black);
             border-radius: 8px;
             font-size: 1rem;
-            font-weight: 600;
+            font-family: 'Montserrat', Arial, sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--retro-orange);
+            box-shadow: 0 0 0 3px var(--retro-orange);
+        }
+        .btn {
+            background: var(--retro-orange);
+            color: #fff;
+            padding: 13px 32px;
+            border: 3px solid var(--retro-border);
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 10px;
+            transition: all 0.2s;
             margin-bottom: 10px;
+            box-shadow: 0 2px 8px var(--retro-shadow);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-
         .btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+            background: var(--retro-red);
+            border-color: var(--retro-red);
+            color: #fff;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 5px 15px var(--retro-shadow);
         }
-
         .btn-secondary {
-            background: var(--secondary);
+            background: var(--retro-black);
+            color: var(--retro-orange);
         }
-
         .btn-secondary:hover {
-            background: var(--secondary-hover);
-            box-shadow: 0 5px 15px rgba(63, 63, 70, 0.4);
+            background: var(--retro-orange);
+            color: #fff;
+            border-color: var(--retro-black);
         }
-
         .result {
             margin-top: 20px;
             padding: 20px;
-            background: var(--background);
+            background: var(--retro-bg);
             border-radius: 8px;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--success);
+            border: 3px solid var(--retro-border);
+            border-left: 8px solid var(--retro-orange);
+            color: var(--retro-black);
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px var(--retro-shadow);
         }
-
         .result.error {
+            background: #ffeaea;
             border-left-color: var(--error);
         }
-
         .result h4 {
             margin-bottom: 10px;
-            color: var(--success);
-            font-weight: 600;
+            color: var(--retro-red);
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-
         .result.error h4 {
             color: var(--error);
         }
-
         .image-preview {
             max-width: 100%;
             max-height: 300px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            border: 3px solid var(--retro-border);
+            border-radius: 10px;
             margin-top: 15px;
+            background: var(--retro-bg);
+            box-shadow: 0 2px 8px var(--retro-shadow);
         }
-
         .file-upload {
-            border: 2px dashed var(--border);
-            border-radius: 8px;
+            border: 3px dashed var(--retro-orange);
+            border-radius: 10px;
             padding: 30px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+            background: var(--retro-bg);
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            font-size: 1.1rem;
+            color: var(--retro-black);
+            letter-spacing: 1px;
         }
-
         .file-upload:hover {
-            border-color: var(--primary);
-            background: var(--background);
+            border-color: var(--retro-red);
+            background: #fff2e6;
+            color: var(--retro-red);
         }
-        
         .file-upload p {
-            color: var(--text-secondary);
+            color: var(--retro-orange);
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
         }
-
         .loading {
             display: none;
             text-align: center;
             padding: 20px;
         }
-
         .spinner {
-            border: 4px solid var(--secondary);
-            border-top: 4px solid var(--primary);
+            border: 4px solid var(--retro-bg);
+            border-top: 4px solid var(--retro-orange);
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .main-content {
-                padding: 20px;
-            }
+        @media (max-width: 900px) {
+            .container { max-width: 99vw; }
+            .main-content { padding: 20px 8px 8px 8px; }
         }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.5rem; }
+            .main-content { padding: 10px 2px 2px 2px; }
+            .section { padding: 10px 4px; }
+            .tabs { flex-direction: column; gap: 6px; }
+        }
+        /* Decorative math symbols in header */
+        .header-math {
+            position: absolute;
+            top: 10px;
+            right: 24px;
+            font-size: 2.2rem;
+            color: #e94f37;
+            opacity: 0.18;
+            pointer-events: none;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            z-index: 2;
+        }
+        .header-math2 {
+            position: absolute;
+            left: 24px;
+            bottom: 10px;
+            font-size: 2.2rem;
+            color: #ff7e2d;
+            opacity: 0.13;
+            pointer-events: none;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            z-index: 2;
+        }
+        /* Geometric SVG shapes */
+        .math-svg {
+            position: absolute;
+            left: -60px;
+            top: 60px;
+            z-index: 0;
+            opacity: 0.10;
+        }
+        .math-svg2 {
+            position: absolute;
+            right: -60px;
+            bottom: 60px;
+            z-index: 0;
+            opacity: 0.10;
+        }
+        .math-float {
+            position: fixed;
+            font-size: 2.5rem;
+            font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
+            color: #181818;
+            opacity: 0.13;
+            z-index: 10;
+            pointer-events: none;
+            user-select: none;
+        }
+        .math-float-1 { left: 2vw; top: 6vh; }
+        .math-float-2 { right: 3vw; top: 12vh; }
+        .math-float-3 { left: 8vw; bottom: 8vh; }
+        .math-float-4 { right: 7vw; bottom: 12vh; }
+        .math-anim-svg {
+            position: fixed;
+            z-index: 9;
+            opacity: 0.10;
+            pointer-events: none;
+        }
+        .math-anim-svg-1 { left: 10vw; bottom: 5vh; }
+        .math-anim-svg-2 { right: 12vw; top: 8vh; }
     </style>
 </head>
 <body>
+    <!-- Animated math elements outside the main container -->
+    <div class="math-float math-float-1">π</div>
+    <div class="math-float math-float-2">∑</div>
+    <div class="math-float math-float-3">∞</div>
+    <div class="math-float math-float-4">√</div>
+    <svg class="math-anim-svg math-anim-svg-1" width="60" height="60" viewBox="0 0 60 60">
+        <polygon points="30,5 55,55 5,55" stroke="#e94f37" stroke-width="2" fill="none" />
+    </svg>
+    <svg class="math-anim-svg math-anim-svg-2" width="80" height="40" viewBox="0 0 80 40">
+        <path d="M0,20 Q20,0 40,20 T80,20" stroke="#ff7e2d" stroke-width="2" fill="none" />
+    </svg>
     <div class="container">
         <div class="header">
-            <h1> Shamir's Secret Sharing</h1>
+            <span class="header-math">Σ ∫ π x²</span>
+            <span class="header-math2">Δ θ ∞ ≈</span>
+            <h1>🔐 Shamir's Secret Sharing</h1>
             <p>Secure secret sharing for text and images using polynomial interpolation</p>
         </div>
 
@@ -323,8 +422,10 @@
                             <input type="number" id="numShares" min="2" max="10" value="5">
                         </div>
                     </div>
-                    <button class="btn" onclick="shareText()">Generate Shares</button>
-                    <button class="btn btn-secondary" onclick="downloadTextShares()" id="downloadTextBtn" style="display: none;">Download Shares</button>
+                    <div class="form-actions">
+                        <button class="btn" onclick="shareText()">Generate Shares</button>
+                        <button class="btn btn-secondary" onclick="downloadTextShares()" id="downloadTextBtn" style="display: none;">Download Shares</button>
+                    </div>
                 </div>
 
                 <!-- Image Sharing -->
@@ -349,8 +450,10 @@
                             <input type="number" id="imageNumShares" min="2" max="10" value="5">
                         </div>
                     </div>
-                    <button class="btn" onclick="shareImage()">Generate Image Shares</button>
-                    <button class="btn btn-secondary" onclick="downloadImageShares()" id="downloadImageBtn" style="display: none;">Download Shares</button>
+                    <div class="form-actions">
+                        <button class="btn" onclick="shareImage()">Generate Image Shares</button>
+                        <button class="btn btn-secondary" onclick="downloadImageShares()" id="downloadImageBtn" style="display: none;">Download Shares</button>
+                    </div>
                 </div>
 
                 <div id="shareResult"></div>
@@ -378,7 +481,9 @@
                         </div>
                         <input type="file" id="textSharesInput" accept=".txt" style="display: none;" onchange="handleTextSharesSelect(event)">
                     </div>
-                    <button class="btn" onclick="reconstructText()">Reconstruct Text</button>
+                    <div class="form-actions">
+                        <button class="btn" onclick="reconstructText()">Reconstruct Text</button>
+                    </div>
                 </div>
 
                 <!-- Image Reconstruction -->
@@ -391,8 +496,10 @@
                         </div>
                         <input type="file" id="imageSharesInput" accept=".txt" style="display: none;" onchange="handleImageSharesSelect(event)">
                     </div>
-                    <button class="btn" onclick="reconstructImage()">Reconstruct Image</button>
-                    <button class="btn btn-secondary" onclick="downloadReconstructedImage()" id="downloadReconstructedBtn" style="display: none;">Download Image</button>
+                    <div class="form-actions">
+                        <button class="btn" onclick="reconstructImage()">Reconstruct Image</button>
+                        <button class="btn btn-secondary" onclick="downloadReconstructedImage()" id="downloadReconstructedBtn" style="display: none;">Download Image</button>
+                    </div>
                 </div>
 
                 <div id="reconstructResult"></div>
@@ -407,5 +514,16 @@
 
     <script src="shamir.js"></script>
     <script src="app.js"></script>
+    <script>
+    // Animate floating math symbols and SVGs
+    window.addEventListener('DOMContentLoaded', function() {
+        gsap.to('.math-float-1', { y: 30, repeat: -1, yoyo: true, duration: 3, ease: 'sine.inOut' });
+        gsap.to('.math-float-2', { x: 40, repeat: -1, yoyo: true, duration: 4, ease: 'sine.inOut' });
+        gsap.to('.math-float-3', { y: -25, repeat: -1, yoyo: true, duration: 2.5, ease: 'sine.inOut' });
+        gsap.to('.math-float-4', { x: -30, repeat: -1, yoyo: true, duration: 3.5, ease: 'sine.inOut' });
+        gsap.to('.math-anim-svg-1', { rotation: 360, transformOrigin: '50% 50%', repeat: -1, duration: 8, ease: 'linear' });
+        gsap.to('.math-anim-svg-2', { y: 20, repeat: -1, yoyo: true, duration: 5, ease: 'sine.inOut' });
+    });
+    </script>
 </body>
 </html> 
