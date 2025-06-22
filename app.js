@@ -284,7 +284,7 @@ function reconstructText() {
             const resultHtml = `
                 <h4>✅ Text Reconstructed Successfully!</h4>
                 <p><strong>Reconstructed text:</strong></p>
-                <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; white-space: pre-wrap;">${reconstructedText}</div>
+                <div style="background: white; color: #09090b; padding: 15px; border-radius: 8px; border: 1px solid #ddd; font-family: monospace; white-space: pre-wrap;">${reconstructedText}</div>
                 <p><strong>Characters:</strong> ${reconstructedText.length}</p>
             `;
             
@@ -421,6 +421,25 @@ function showLoading(show) {
     loading.style.display = show ? 'block' : 'none';
 }
 
+// GSAP Animations
+function animateIn() {
+    gsap.from('.container', {
+        duration: 1,
+        opacity: 0,
+        y: 50,
+        ease: 'power3.out'
+    });
+
+    gsap.from('.header h1, .header p, .tabs, .section', {
+        duration: 0.8,
+        opacity: 0,
+        y: 20,
+        stagger: 0.1,
+        ease: 'power2.out',
+        delay: 0.3
+    });
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     // Set up drag and drop event listeners
@@ -438,5 +457,8 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleShareType();
     toggleReconstructType();
     
-    console.log(' Shamir\'s Secret Sharing Demo loaded successfully!');
+    // Run animations
+    animateIn();
+    
+    console.log('🔐 Shamir\'s Secret Sharing Demo loaded successfully!');
 }); 
