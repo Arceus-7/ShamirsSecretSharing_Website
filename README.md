@@ -1,8 +1,8 @@
-# 🔐 Shamir's Secret Sharing Demo
+# Shamir's Secret Sharing Demo
 
 A fully client-side web application that demonstrates Shamir's Secret Sharing algorithm for both text and grayscale images. This implementation runs entirely in the browser without requiring any server setup or backend dependencies.
 
-## 🌟 Features
+## Features
 
 ### Text Secret Sharing
 - **Share Text**: Convert any text into multiple shares using polynomial interpolation
@@ -23,7 +23,7 @@ A fully client-side web application that demonstrates Shamir's Secret Sharing al
 - **Real-time Feedback**: Loading indicators and success/error messages
 - **Mobile Friendly**: Responsive design that works on all devices
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
@@ -40,8 +40,7 @@ A fully client-side web application that demonstrates Shamir's Secret Sharing al
 
 That's it! The application is ready to use.
 
-## 📖 How to Use
-
+## How to Use
 ### Sharing Text Secrets
 
 1. **Select "Share a Secret" tab**
@@ -78,7 +77,7 @@ That's it! The application is ready to use.
 4. **Click "Reconstruct Image"**
 5. **View and download the reconstructed image**
 
-## 🔧 Technical Details
+## Technical Details
 
 ### Algorithm Implementation
 - **Prime Field**: Uses prime 2³¹ - 1 (2147483647) for finite field arithmetic
@@ -96,7 +95,7 @@ That's it! The application is ready to use.
 - **Random Coefficients**: Each sharing operation uses fresh random values
 - **Threshold Security**: Original secret cannot be reconstructed with fewer than threshold shares
 
-## 📁 File Structure
+## File Structure
 
 ```
 shamir-secret-sharing/
@@ -107,7 +106,7 @@ shamir-secret-sharing/
 └── shamir.go           # Original Go implementation (for reference)
 ```
 
-## 🧮 Mathematical Background
+## Mathematical Background
 
 ### Shamir's Secret Sharing
 Shamir's Secret Sharing is a cryptographic algorithm that allows a secret to be split into multiple shares such that:
@@ -128,14 +127,14 @@ For a (3,5) scheme (threshold=3, total shares=5):
 - Shares: (1,52), (2,68), (3,90), (4,118), (5,152)
 - Any 3 shares can reconstruct the secret 42
 
-## 🔒 Security Considerations
+## Security Considerations
 
 - **Browser Security**: All processing happens locally in the browser
 - **No Data Transmission**: No data is sent to external servers
 - **Prime Field**: Uses a large prime for secure modular arithmetic
 - **Random Generation**: Uses cryptographically secure random number generation
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -152,23 +151,23 @@ For a (3,5) scheme (threshold=3, total shares=5):
    - Solution: Ensure you're using a modern browser with File API support
 
 ### Browser Compatibility
-- ✅ Chrome 67+
-- ✅ Firefox 68+
-- ✅ Safari 14+
-- ✅ Edge 79+
+- Chrome 67+
+- Firefox 68+
+- Safari 14+
+- Edge 79+
 
-## 🤝 Contributing
+## Contributing
 
 This is a demonstration project. Feel free to:
 - Report bugs or issues
 - Suggest improvements
 - Fork and modify for your own use
 
-## 📄 License
+## License
 
 This project is open source and available under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Original Shamir's Secret Sharing algorithm by Adi Shamir
 - JavaScript BigInt support for secure arithmetic
